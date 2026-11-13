@@ -9,9 +9,9 @@
 
     public class CategoriaServicio
     {
-        private readonly CategoriaRepositorio _repo;
+        private readonly ICategoriaRepositorio _repo;
 
-        public CategoriaServicio(CategoriaRepositorio repo)
+        public CategoriaServicio(ICategoriaRepositorio repo)
         {
             _repo = repo;
         }
@@ -82,16 +82,27 @@
         }
 
         // =========================================================================
-        // ELIMINAR: Realiza el borrado de la categoría
+        // ELIMINAR: Realiza el borrado de la categoría validando integridad
         // =========================================================================
         public async Task<bool> EliminarCategoriaAsync(int id)
         {
-            var eliminado = await _repo.EliminarAsync(id);
+            var categoria = await _repo.ObtenerPorIdAsync(id);
+            if (categoria == null)
+            {
+                throw new KeyNotFoundException($"No se pudo eliminar, la categoría con ID {id} no existe.");
+            }
 
+            var platosAsociados = await _repo.ContarPlatosAsync(id);
+            if (platosAsociados > 0)
+            {
+                throw new InvalidOperationException($"No se puede eliminar la categoría '{categoria.Nombre}' porque tiene {platosAsociados} plato(s) asociado(s).");
+            }
+
+            var eliminado = await _repo.EliminarAsync(id);
             if (!eliminado)
-                throw new KeyNotFoundException(
-                    $"No se pudo eliminar, la categoría con ID {id} no existe."
-                );
+            {
+                throw new KeyNotFoundException($"No se pudo eliminar, la categoría con ID {id} no existe.");
+            }
 
             return true;
         }
