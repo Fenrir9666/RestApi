@@ -8,7 +8,7 @@
     using Microsoft.Extensions.Configuration;
     using RestApi.Entidades;
 
-    public class PlatoRepositorio(IConfiguration config)
+    public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
     {
         private readonly string _cn = config.GetConnectionString("Restaurante")
             ?? throw new InvalidOperationException("La cadena de conexión 'Restaurante' no está configurada.");
@@ -53,9 +53,9 @@
         public Task<List<Plato>> ObtenerTodosAsync() =>
             LeerAsync(SelectConCategoria + " WHERE p.Disponible = 1 ORDER BY c.Nombre, p.Nombre");
 
-        // Obtiene un plato específico por su ID[cite: 4]
+        // Obtiene un plato específico por su ID (solo si está disponible)
         public async Task<Plato?> ObtenerPorIdAsync(int id) =>
-            (await LeerAsync(SelectConCategoria + " WHERE p.Id = @id", ("@id", id))).FirstOrDefault();
+            (await LeerAsync(SelectConCategoria + " WHERE p.Id = @id AND p.Disponible = 1", ("@id", id))).FirstOrDefault();
 
         // Obtiene platos filtrados por categoría[cite: 4]
         public Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId) =>

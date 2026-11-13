@@ -7,7 +7,7 @@
     using Microsoft.Extensions.Configuration;   // Permite leer archivos de configuración como el 'appsettings.json'.
     using RestApi.Entidades;                   // Conecta con tus modelos propios (como la clase Categoria).
 
-    public class CategoriaRepositorio(IConfiguration config)
+    public class CategoriaRepositorio(IConfiguration config) : ICategoriaRepositorio
     {
         // Obtenemos de forma segura la cadena de conexión a la base de datos desde el appsettings.json
         private readonly string _cn = config.GetConnectionString("Restaurante")

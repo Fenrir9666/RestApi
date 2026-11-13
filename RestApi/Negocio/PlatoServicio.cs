@@ -8,11 +8,11 @@
 
     public class PlatoServicio
     {
-        private readonly PlatoRepositorio repo;
+        private readonly IPlatoRepositorio repo;
         private readonly CategoriaServicio categorias; // Inyecta el servicio de categorías
 
-        // Constructor que recibe ambos repositorios/servicios
-        public PlatoServicio(PlatoRepositorio repo, CategoriaServicio categorias)
+        // Constructor que recibe repositorio con interfaz y servicio de categorías
+        public PlatoServicio(IPlatoRepositorio repo, CategoriaServicio categorias)
         {
             this.repo = repo;
             this.categorias = categorias;
@@ -94,8 +94,17 @@
             if (p.Precio <= 0)
                 throw new ArgumentException("El precio debe ser mayor a 0."); // 400
 
-            if (await categorias.ObtenerPorIdAsync(p.CategoriaId) is null)
+            if (p.CategoriaId <= 0)
+                throw new ArgumentException("Debe indicar una categoría válida."); // 400
+
+            try
+            {
+                await categorias.ObtenerPorIdAsync(p.CategoriaId);
+            }
+            catch (KeyNotFoundException)
+            {
                 throw new ArgumentException($"La categoría {p.CategoriaId} no existe."); // 400
+            }
 
             p.Nombre = p.Nombre.Trim();
             p.Descripcion = (p.Descripcion ?? "").Trim();

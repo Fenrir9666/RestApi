@@ -13,11 +13,11 @@ builder.Services.AddScoped<ProductoRepositorio>();
 builder.Services.AddScoped<ProductoServicio>();
 
 // Servicios de PLATOS
-builder.Services.AddScoped<PlatoRepositorio>();
+builder.Services.AddScoped<IPlatoRepositorio, PlatoRepositorio>();
 builder.Services.AddScoped<PlatoServicio>();
 
 // Servicios de CATEGORÍAS
-builder.Services.AddScoped<CategoriaRepositorio>();
+builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
 builder.Services.AddScoped<CategoriaServicio>();
 
 // CREACIÓN DE LA APLICACIÓN
