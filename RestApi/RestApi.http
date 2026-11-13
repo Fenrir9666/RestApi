@@ -1,6 +1,146 @@
 @RestApi_HostAddress = http://localhost:5007
 
-GET {{RestApi_HostAddress}}/weatherforecast/
+### =========================================================================
+### 1. CATEGORÍAS
+### =========================================================================
+
+### Listar todas las categorías
+GET {{RestApi_HostAddress}}/categorias
 Accept: application/json
 
 ###
+
+### Obtener categoría por ID
+GET {{RestApi_HostAddress}}/categorias/1
+Accept: application/json
+
+###
+
+### Obtener categoría inexistente (debe retornar 404)
+GET {{RestApi_HostAddress}}/categorias/9999
+Accept: application/json
+
+###
+
+### Registrar nueva categoría
+POST {{RestApi_HostAddress}}/categorias
+Content-Type: application/json
+
+{
+  "nombre": "Postres"
+}
+
+###
+
+### Registrar categoría inválida (nombre vacío -> debe retornar 400)
+POST {{RestApi_HostAddress}}/categorias
+Content-Type: application/json
+
+{
+  "nombre": ""
+}
+
+###
+
+### Actualizar categoría existente
+PUT {{RestApi_HostAddress}}/categorias/1
+Content-Type: application/json
+
+{
+  "nombre": "Sopas Tradicionales"
+}
+
+###
+
+### Intentar eliminar categoría con platos asociados (debe retornar 409 Conflicto)
+DELETE {{RestApi_HostAddress}}/categorias/1
+
+###
+
+### Eliminar categoría sin platos asociados (debe retornar 204)
+DELETE {{RestApi_HostAddress}}/categorias/4
+
+
+### =========================================================================
+### 2. PLATOS
+### =========================================================================
+
+### Listar todos los platos disponibles
+GET {{RestApi_HostAddress}}/platos
+Accept: application/json
+
+###
+
+### Obtener plato por ID
+GET {{RestApi_HostAddress}}/platos/1
+Accept: application/json
+
+###
+
+### Obtener platos por categoría
+GET {{RestApi_HostAddress}}/platos/categoria/1
+Accept: application/json
+
+###
+
+### Registrar nuevo plato
+POST {{RestApi_HostAddress}}/platos
+Content-Type: application/json
+
+{
+  "nombre": "Caldo de Gallina",
+  "descripcion": "Caldo criollo con presa y yuca",
+  "precio": 5.50,
+  "categoriaId": 1
+}
+
+###
+
+### Registrar plato con precio inválido (debe retornar 400)
+POST {{RestApi_HostAddress}}/platos
+Content-Type: application/json
+
+{
+  "nombre": "Plato Gratis",
+  "descripcion": "Invalido",
+  "precio": 0,
+  "categoriaId": 1
+}
+
+###
+
+### Registrar plato con categoría inexistente (debe retornar 400)
+POST {{RestApi_HostAddress}}/platos
+Content-Type: application/json
+
+{
+  "nombre": "Plato Huerfano",
+  "descripcion": "Sin categoria real",
+  "precio": 10.00,
+  "categoriaId": 9999
+}
+
+###
+
+### Actualizar plato existente
+PUT {{RestApi_HostAddress}}/platos/1
+Content-Type: application/json
+
+{
+  "nombre": "Encebollado Mixto",
+  "descripcion": "Pescado y camarón",
+  "precio": 8.50,
+  "categoriaId": 1,
+  "disponible": true
+}
+
+###
+
+### Eliminar plato (Baja lógica, debe retornar 204)
+DELETE {{RestApi_HostAddress}}/platos/1
+
+###
+
+### Verificar que el plato eliminado ya no se retorne por ID (debe retornar 404)
+GET {{RestApi_HostAddress}}/platos/1
+Accept: application/json

@@ -10,8 +10,8 @@
             var grupo = app.MapGroup("/platos");
 
             // Coincide con ListarDisponiblesAsync() de tu servicio
-            grupo.MapGet("/", async (PlatoServicio s) =>
-                Results.Ok(await s.ListarDisponiblesAsync()));
+            grupo.MapGet("/", (PlatoServicio s) =>
+                Respuestas.Manejar(async () => Results.Ok(await s.ListarDisponiblesAsync())));
 
             // Coincide con ObtenerPorCategoriaAsync()
             grupo.MapGet("/categoria/{categoriaId:int}", (int categoriaId, PlatoServicio s) =>
@@ -23,15 +23,15 @@
 
             // Coincide con RegistrarPlatoAsync()
             grupo.MapPost("/", (Plato p, PlatoServicio s) =>
-      Respuestas.Manejar(async () =>
-      {
-          var nuevoId = await s.RegistrarPlatoAsync(p);
+                Respuestas.Manejar(async () =>
+                {
+                    var nuevoId = await s.RegistrarPlatoAsync(p);
 
-          // Buscamos el plato recién creado para que traiga el JOIN con la categoría
-          var platoCreado = await s.ObtenerPorIdAsync(nuevoId);
+                    // Buscamos el plato recién creado para que traiga el JOIN con la categoría
+                    var platoCreado = await s.ObtenerPorIdAsync(nuevoId);
 
-          return Results.Created($"/platos/{nuevoId}", platoCreado);
-      }));
+                    return Results.Created($"/platos/{nuevoId}", platoCreado);
+                }));
 
             // Coincide con ActualizarAsync()
             grupo.MapPut("/{id:int}", (int id, Plato p, PlatoServicio s) =>
@@ -39,7 +39,7 @@
                 {
                     p.Id = id;
                     await s.ActualizarAsync(p);
-                    return Results.Ok(p);
+                    return Results.NoContent();
                 }));
 
             // Coincide con EliminarPlatoAsync()

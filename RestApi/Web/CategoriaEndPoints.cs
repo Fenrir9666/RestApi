@@ -10,89 +10,38 @@
             var grupo = app.MapGroup("/categorias");
 
             // GET /categorias → lista de categorías
-            grupo.MapGet("/", async (CategoriaServicio servicio) =>
-            {
-                var categorias = await servicio.ListarTodosAsync();
-                return Results.Ok(categorias);
-            });
+            grupo.MapGet("/", (CategoriaServicio servicio) =>
+                Respuestas.Manejar(async () => Results.Ok(await servicio.ListarTodosAsync())));
 
             // GET /categorias/{id} → busca una categoría por su ID
-            grupo.MapGet("/{id:int}", async (int id, CategoriaServicio servicio) =>
-            {
-                try
-                {
-                    var categoria = await servicio.ObtenerPorIdAsync(id);
-                    return Results.Ok(categoria);
-                }
-                catch (KeyNotFoundException ex)
-                {
-                    return Results.NotFound(ex.Message);
-                }
-                catch (Exception)
-                {
-                    return Results.Problem("Ocurrió un error interno en el servidor.", statusCode: 500);
-                }
-            });
+            grupo.MapGet("/{id:int}", (int id, CategoriaServicio servicio) =>
+                Respuestas.Manejar(async () => Results.Ok(await servicio.ObtenerPorIdAsync(id))));
 
             // POST /categorias → registra una nueva categoría
-            grupo.MapPost("/", async (Categoria categoria, CategoriaServicio servicio) =>
-            {
-                try
+            grupo.MapPost("/", (Categoria categoria, CategoriaServicio servicio) =>
+                Respuestas.Manejar(async () =>
                 {
                     var nuevoId = await servicio.RegistrarCategoriaAsync(categoria);
                     categoria.Id = nuevoId;
                     return Results.Created($"/categorias/{nuevoId}", categoria);
-                }
-                catch (ArgumentException ex)
-                {
-                    return Results.BadRequest(ex.Message);
-                }
-                catch (Exception)
-                {
-                    return Results.Problem("Ocurrió un error interno en el servidor.", statusCode: 500);
-                }
-            });
+                }));
 
             // PUT /categorias/{id} → modifica una categoría existente
-            grupo.MapPut("/{id:int}", async (int id, Categoria categoria, CategoriaServicio servicio) =>
-            {
-                categoria.Id = id;
-                try
+            grupo.MapPut("/{id:int}", (int id, Categoria categoria, CategoriaServicio servicio) =>
+                Respuestas.Manejar(async () =>
                 {
+                    categoria.Id = id;
                     await servicio.ActualizarAsync(categoria);
-                    return Results.NoContent();
-                }
-                catch (ArgumentException ex)
-                {
-                    return Results.BadRequest(ex.Message);
-                }
-                catch (KeyNotFoundException ex)
-                {
-                    return Results.NotFound(ex.Message);
-                }
-                catch (Exception)
-                {
-                    return Results.Problem("Ocurrió un error interno en el servidor.", statusCode: 500);
-                }
-            });
+                    return Results.NoContent(); // 204
+                }));
 
             // DELETE /categorias/{id} → elimina físicamente una categoría
-            grupo.MapDelete("/{id:int}", async (int id, CategoriaServicio servicio) =>
-            {
-                try
+            grupo.MapDelete("/{id:int}", (int id, CategoriaServicio servicio) =>
+                Respuestas.Manejar(async () =>
                 {
                     await servicio.EliminarCategoriaAsync(id);
-                    return Results.NoContent();
-                }
-                catch (KeyNotFoundException ex)
-                {
-                    return Results.NotFound(ex.Message);
-                }
-                catch (Exception)
-                {
-                    return Results.Problem("Ocurrió un error interno en el servidor.", statusCode: 500);
-                }
-            });
+                    return Results.NoContent(); // 204
+                }));
         }
     }
 }
